@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ImageController : MonoBehaviour {
 
     private Image img;
+    public int imageHeight;
 
     private void Start()
     {
@@ -21,7 +22,7 @@ public class ImageController : MonoBehaviour {
 
     private void AdjustImageSize()
     {
-        if (img.sprite.texture.width / img.sprite.texture.height >= Screen.width / Screen.height)
+        if (img.sprite.texture.width / img.sprite.texture.height >= Screen.width / imageHeight)
             AdjustImageHorizontally();
         else
             AdjustImageVerically();
@@ -29,7 +30,7 @@ public class ImageController : MonoBehaviour {
 
     private void AdjustImageVerically()
     {
-        TextureScale.Bilinear(img.sprite.texture, img.sprite.texture.width / (img.sprite.texture.height / Screen.height), Screen.height);
+        TextureScale.Bilinear(img.sprite.texture, img.sprite.texture.width / (img.sprite.texture.height / imageHeight), imageHeight);
         img.sprite = Sprite.Create(img.sprite.texture, new Rect(0.0f, 0.0f, img.sprite.texture.width, img.sprite.texture.height), new Vector2(0.5f, 0.5f));
         img.SetNativeSize();
     }
