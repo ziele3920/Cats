@@ -13,14 +13,9 @@ namespace ziele3920.Cats
         void Start()
         {
             imgController = FindObjectOfType<ImageController>();
-            FillDefaultImg();
             catService = GetComponent<WebCatService>();
             catService.NewCatReceived += OnCatReceived;
-        }
-
-        private void FillDefaultImg()
-        {
-            
+            catService.GetCat(4);
         }
 
         private void OnCatReceived(Cat receivedCat)
@@ -28,6 +23,7 @@ namespace ziele3920.Cats
             if(currentCat != null)
                 lastCat = currentCat;
             currentCat = receivedCat;
+            imgController.SetImage(currentCat.image);
         }
 
         private void OnDestroy()
