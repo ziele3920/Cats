@@ -22,7 +22,10 @@ public class ImageController : MonoBehaviour {
 
     private void AdjustImageSize()
     {
-        if (img.sprite.texture.width / img.sprite.texture.height >= Screen.width / imageHeight)
+        int newWidth, newHeight;
+        newWidth = (int)((float)imageHeight / img.sprite.texture.height * img.sprite.texture.width);
+        newHeight = (int)((float)Screen.width / img.sprite.texture.width * img.sprite.texture.height);
+        if (newHeight <= imageHeight)
             AdjustImageHorizontally();
         else
             AdjustImageVerically();
