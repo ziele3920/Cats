@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -7,19 +8,51 @@ namespace ziele3920.Cats
 {
     public class WebCatService : MonoBehaviour
     {
-        public event Action<Cat> NewCatReceived;
-        public event Action<int> CatDownloadError;
-        private readonly string defaultCatUrl = "http://smieszne-koty.herokuapp.com/api/kittens/";
+        private event Action<Cat> NewCatReceived;
+        private event Action CatDownloadError;
+        private readonly string defaultCatUrl = "http://smieszne-koty.herokuapp.com/api/kittens";
+        private Queue<Cat> imagelessCats, cats;
+        int currentPage = 1, minCatLength = 6;
 
-        public void GetCat(int catID)
+        public Cat GetNextCat()
         {
-            StartCoroutine(StartGetCatRequest(catID));
+            if (cats.Count < minCatLength)
+                DownloadNextCat();
+            return cats.Dequeue();
         }
 
-        private IEnumerator StartGetCatRequest(int catID)
+        private void DownloadNextCat()
         {
-            string url = defaultCatUrl + catID;
-            UnityWebRequest www = UnityWebRequest.Get(url);
+            if(imagelessCats.Count < minCatLength)
+                GetCatList(currentPage++);
+            StartCoroutine(AppendImage(imagelessCats.Dequeue()));
+        }
+
+        private void Start()
+        {
+            imagelessCats = new Queue<Cat>();
+            cats = new Queue<Cat>();
+            NewCatReceived += AppendCat;
+            CatDownloadError += DownloadNextCat;
+            GetCatList(currentPage++);
+        }
+
+        private void AppendCat(Cat cat)
+        {
+            cats.Enqueue(cat);
+            if (cats.Count < minCatLength)
+                DownloadNextCat();
+        }
+
+        private void GetCatList(int page)
+        {
+            StartCoroutine(StartGetCatListRequest(page));
+        }
+
+        private IEnumerator StartGetCatListRequest(int page)
+        {
+            string url = defaultCatUrl;
+            UnityWebRequest www = UnityWebRequest.Get(url + "?page=" + page);
             yield return www.Send();
 
             if (www.isNetworkError)
@@ -29,19 +62,31 @@ namespace ziele3920.Cats
             else
             {
                 Debug.Log(www.downloadHandler.text);
-                Cat downloadedCat;
+            }
+            imagelessCats = GetCatQueue(www.downloadHandler.text);
+            if(currentPage == 2)
+                StartCoroutine(AppendImage(imagelessCats.Dequeue()));
+
+        }
+
+        private Queue<Cat> GetCatQueue(string text)
+        {
+            Queue<Cat> cats = new Queue<Cat>();
+            text = text.Remove(1, 1);
+            text = text.Remove(text.Length - 2);
+            string[] jsonCats = text.Split(new string[] { "}," }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < jsonCats.Length; ++i)
+            {
                 try
                 {
-                    downloadedCat = Cat.CreateFromJson(www.downloadHandler.text);
+                    cats.Enqueue(Cat.CreateFromJson(jsonCats[i] + "}"));
                 }
-                catch(Exception ex)
+                catch
                 {
-                    if (CatDownloadError != null)
-                        CatDownloadError(catID);
-                    yield break;
+                    continue;
                 }
-                StartCoroutine(AppendImage(downloadedCat));
             }
+            return cats;
         }
 
         private IEnumerator AppendImage(Cat downloadedCat)
@@ -52,13 +97,19 @@ namespace ziele3920.Cats
             if (www.texture == null)
             {
                 if (CatDownloadError != null)
-                    CatDownloadError(downloadedCat.id);
+                    CatDownloadError();
                 yield break;
             }
 
             downloadedCat.AppendImage(www.texture);
             if (NewCatReceived != null)
                 NewCatReceived(downloadedCat);
+        }
+
+        private void OnDestroy()
+        {
+            NewCatReceived -= AppendCat;
+            CatDownloadError -= DownloadNextCat;
         }
     }
 }

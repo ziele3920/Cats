@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace ziele3920.Cats
@@ -20,22 +19,20 @@ namespace ziele3920.Cats
             imgController.imageHeight =(int) (Screen.height * d);
             Debug.Log(Screen.width + " " +Screen.height + " " + imgController.imageHeight);
             catService = GetComponent<WebCatService>();
-            catService.NewCatReceived += OnCatReceived;
-            catService.GetCat(4);
         }
 
-        private void OnCatReceived(Cat receivedCat)
+        private void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.C))
+                ShowNewCat(catService.GetNextCat()); ;
+        }
+
+        private void ShowNewCat(Cat newCat)
         {
             if(currentCat != null)
                 lastCat = currentCat;
-            currentCat = receivedCat;
+            currentCat = newCat;
             imgController.SetImage(currentCat.image);
         }
-
-        private void OnDestroy()
-        {
-            catService.NewCatReceived -= OnCatReceived;
-        }
-
     }
 }
