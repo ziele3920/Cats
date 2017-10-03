@@ -22,7 +22,7 @@ namespace ziele3920.Cats
         }
 
         public void VoteCatUp(int catID) {
-
+            StartCoroutine(StartVoteCatUpRequest(catID));
         }
 
         public void VoteCatDown(int catID) {
@@ -45,6 +45,11 @@ namespace ziele3920.Cats
             GetCatList(currentPage++);
         }
 
+        private void Update() {
+            if (Input.GetKeyDown(KeyCode.V))
+                VoteCatUp(4);
+        }
+
         private void AppendCat(Cat cat)
         {
             cats.Enqueue(cat);
@@ -58,7 +63,16 @@ namespace ziele3920.Cats
         }
 
         private IEnumerator StartVoteCatUpRequest(int catID) {
-            UnityWebRequest www = UnityWebRequest.Put(defaultCatUrl + "/vote");
+            string putS = defaultCatUrl + "/" + catID + "/vote";
+            Debug.Log("Sending PUT request url: " + putS + "body: " + "dupa");
+            UnityWebRequest www = UnityWebRequest.Put(putS, "dupa");
+            yield return www.Send();
+            if (www.isNetworkError || www.isHttpError) {
+                Debug.LogError(www.error);
+            }
+            else {
+                Debug.Log("Voted for cat " + catID);
+            }
         }
 
         private IEnumerator StartGetCatListRequest(int page)
