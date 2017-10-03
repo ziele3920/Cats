@@ -26,7 +26,7 @@ namespace ziele3920.Cats
         }
 
         public void VoteCatDown(int catID) {
-
+            StartCoroutine(StartVoteDownRequest(catID));
         }
 
         private void DownloadNextCat()
@@ -47,7 +47,9 @@ namespace ziele3920.Cats
 
         private void Update() {
             if (Input.GetKeyDown(KeyCode.V))
-                VoteCatUp(4);
+                VoteCatUp(59);
+            if (Input.GetKeyDown(KeyCode.D))
+                VoteCatDown(59);
         }
 
         private void AppendCat(Cat cat)
@@ -62,9 +64,25 @@ namespace ziele3920.Cats
             StartCoroutine(StartGetCatListRequest(page));
         }
 
+        private IEnumerator StartVoteDownRequest(int catID)
+        {
+            string putS = defaultCatUrl + "/" + catID + "/votes";
+            Debug.Log("Sending Delete request url: " + putS + " body: " + "dupa");
+            UnityWebRequest www = UnityWebRequest.Delete(putS);
+            yield return www.Send();
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.LogError(www.error);
+            }
+            else
+            {
+                Debug.Log("Voted for cat " + catID);
+            }
+        }
+
         private IEnumerator StartVoteCatUpRequest(int catID) {
-            string putS = defaultCatUrl + "/" + catID + "/vote";
-            Debug.Log("Sending PUT request url: " + putS + "body: " + "dupa");
+            string putS = defaultCatUrl + "/" + catID + "/votes";
+            Debug.Log("Sending PUT request url: " + putS + " body: " + "dupa");
             UnityWebRequest www = UnityWebRequest.Put(putS, "dupa");
             yield return www.Send();
             if (www.isNetworkError || www.isHttpError) {
