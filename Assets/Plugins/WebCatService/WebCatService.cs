@@ -21,6 +21,14 @@ namespace ziele3920.Cats
             return cats.Dequeue();
         }
 
+        public void VoteCatUp(int catID) {
+
+        }
+
+        public void VoteCatDown(int catID) {
+
+        }
+
         private void DownloadNextCat()
         {
             if(imagelessCats.Count < minCatLength)
@@ -49,10 +57,13 @@ namespace ziele3920.Cats
             StartCoroutine(StartGetCatListRequest(page));
         }
 
+        private IEnumerator StartVoteCatUpRequest(int catID) {
+            UnityWebRequest www = UnityWebRequest.Put(defaultCatUrl + "/vote");
+        }
+
         private IEnumerator StartGetCatListRequest(int page)
         {
-            string url = defaultCatUrl;
-            UnityWebRequest www = UnityWebRequest.Get(url + "?page=" + page);
+            UnityWebRequest www = UnityWebRequest.Get(defaultCatUrl + "?page=" + page);
             yield return www.Send();
 
             if (www.isNetworkError)
