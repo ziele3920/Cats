@@ -8,11 +8,13 @@ namespace ziele3920.Cats
 {
     public class WebCatService : MonoBehaviour
     {
+        public event Action<Cat> FirstCatReceived;
         private event Action<Cat> NewCatReceived;
         private event Action CatDownloadError;
         private readonly string defaultCatUrl = "http://smieszne-koty.herokuapp.com/api/kittens";
         private Queue<Cat> imagelessCats, cats;
         int currentPage = 1, minCatLength = 6;
+        private bool waitingForFirstCat = true;
 
         public Cat GetNextCat()
         {
@@ -57,6 +59,12 @@ namespace ziele3920.Cats
             cats.Enqueue(cat);
             if (cats.Count < minCatLength)
                 DownloadNextCat();
+            if(waitingForFirstCat)
+                waitingForFirstCat = false;
+            {
+                if (FirstCatReceived != null)
+                    FirstCatReceived(cats.Dequeue());
+            }
         }
 
         private void GetCatList(int page)

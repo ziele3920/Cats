@@ -13,7 +13,7 @@ namespace ziele3920.Cats
         private WebCatService catService;
         private ImageController imgController;
         private Cat currentCat, lastCat;
-        private int upperTextFrac = 10, lowerButtinsFrac = 10;
+        public static readonly int upperTextFrac = 10, lowerButtinsFrac = 10;
 
 
         void Start()
@@ -23,6 +23,7 @@ namespace ziele3920.Cats
             imgController.maxImageHeight =(int) (Screen.height * d);
             Debug.Log(Screen.width + " " +Screen.height + " " + imgController.maxImageHeight);
             catService = GetComponent<WebCatService>();
+            catService.FirstCatReceived += ShowNewCat;
             lubeButton.onClick.AddListener(LubeClicked);
             neLubeButton.onClick.AddListener(NeLubeClicked);
         }
