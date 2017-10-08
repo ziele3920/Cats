@@ -30,13 +30,13 @@ namespace ziele3920.Cats
 
         private void NeLubeClicked()
         {
-            catService.VoteCatUp(currentCat.id);
+            catService.VoteCatDown(currentCat.id);
             ShowNewCat(catService.GetNextCat());
         }
 
         private void LubeClicked()
         {
-            catService.VoteCatDown(currentCat.id);
+            catService.VoteCatUp(currentCat.id);
             ShowNewCat(catService.GetNextCat());
         }
 

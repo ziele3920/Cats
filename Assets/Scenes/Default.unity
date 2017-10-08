@@ -667,7 +667,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: czaba
+  m_Text: kotuf
 --- !u!222 &544445806
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -968,7 +968,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Dupa
+  m_Text: Szukam
 --- !u!222 &1608789798
 CanvasRenderer:
   m_ObjectHideFlags: 0

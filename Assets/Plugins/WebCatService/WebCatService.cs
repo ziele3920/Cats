@@ -9,7 +9,7 @@ namespace ziele3920.Cats
     public class WebCatService : MonoBehaviour
     {
         public event Action<Cat> FirstCatReceived;
-        private event Action<Cat> NewCatReceived;
+        //private event Action<Cat> NewCatReceived;
         private event Action CatDownloadError;
         private readonly string defaultCatUrl = "http://smieszne-koty.herokuapp.com/api/kittens";
         private Queue<Cat> imagelessCats, cats;
@@ -35,23 +35,16 @@ namespace ziele3920.Cats
         {
             if(imagelessCats.Count < minCatLength)
                 GetCatList(currentPage++);
-            StartCoroutine(AppendImage(imagelessCats.Dequeue()));
+            if(imagelessCats.Count > 0)
+                StartCoroutine(AppendImage(imagelessCats.Dequeue()));
         }
 
         private void Start()
         {
             imagelessCats = new Queue<Cat>();
             cats = new Queue<Cat>();
-            NewCatReceived += AppendCat;
             CatDownloadError += DownloadNextCat;
             GetCatList(currentPage++);
-        }
-
-        private void Update() {
-            if (Input.GetKeyDown(KeyCode.V))
-                VoteCatUp(59);
-            if (Input.GetKeyDown(KeyCode.D))
-                VoteCatDown(59);
         }
 
         private void AppendCat(Cat cat)
@@ -59,9 +52,9 @@ namespace ziele3920.Cats
             cats.Enqueue(cat);
             if (cats.Count < minCatLength)
                 DownloadNextCat();
-            if(waitingForFirstCat)
-                waitingForFirstCat = false;
+            if (waitingForFirstCat)
             {
+                waitingForFirstCat = false;
                 if (FirstCatReceived != null)
                     FirstCatReceived(cats.Dequeue());
             }
@@ -115,7 +108,7 @@ namespace ziele3920.Cats
                 Debug.Log(www.downloadHandler.text);
             }
             imagelessCats = GetCatQueue(www.downloadHandler.text);
-            if(currentPage == 2)
+            if(waitingForFirstCat)
                 StartCoroutine(AppendImage(imagelessCats.Dequeue()));
 
         }
@@ -123,6 +116,12 @@ namespace ziele3920.Cats
         private Queue<Cat> GetCatQueue(string text)
         {
             Queue<Cat> cats = new Queue<Cat>();
+            if (text.Length < 5)
+            {
+                currentPage = 1;
+                DownloadNextCat();
+                return cats;
+            }
             text = text.Remove(1, 1);
             text = text.Remove(text.Length - 2);
             string[] jsonCats = text.Split(new string[] { "}," }, StringSplitOptions.RemoveEmptyEntries);
@@ -153,13 +152,11 @@ namespace ziele3920.Cats
             }
 
             downloadedCat.AppendImage(www.texture);
-            if (NewCatReceived != null)
-                NewCatReceived(downloadedCat);
+            AppendCat(downloadedCat);
         }
 
         private void OnDestroy()
         {
-            NewCatReceived -= AppendCat;
             CatDownloadError -= DownloadNextCat;
         }
     }
